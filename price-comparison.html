@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Blinkit vs Zepto — Price Hunter</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --blinkit: #f8d000;
+    --blinkit-dark: #e6b800;
+    --zepto: #8b2cf5;
+    --zepto-light: #b06cf7;
+    --bg: #0d0d0f;
+    --surface: #18181c;
+    --surface2: #222228;
+    --border: #2e2e38;
+    --text: #f0f0f5;
+    --muted: #7a7a90;
+    --green: #22c55e;
+    --red: #ef4444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.6rem, 5vw, 2.6rem);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .header h1 .bk { color: var(--blinkit); }
+  .header h1 .zp { color: var(--zepto-light); }
+  .header p { color: var(--muted); font-size: 0.9rem; }
+
+  /* Badges */
+  .badges {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .badge.bk { background: rgba(248,208,0,0.12); border: 1px solid rgba(248,208,0,0.3); color: var(--blinkit); }
+  .badge.zp { background: rgba(139,44,245,0.12); border: 1px solid rgba(139,44,245,0.4); color: var(--zepto-light); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot.bk { background: var(--blinkit); }
+  .dot.zp { background: var(--zepto-light); }
+
+  /* Add item form */
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .form-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+  }
+  @media (max-width: 560px) {
+    .form-row { grid-template-columns: 1fr 1fr; }
+    .form-row .add-btn { grid-column: 1/-1; }
+  }
+  .field label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .field input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus { border-color: var(--zepto); }
+  .field input.blinkit:focus { border-color: var(--blinkit); }
+  .field input::placeholder { color: var(--muted); }
+
+  .add-btn {
+    background: linear-gradient(135deg, var(--zepto), #5b0fcf);
+    border: none;
+    border-radius: 10px;
+    padding: 11px 20px;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .add-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .add-btn:active { transform: translateY(0); }
+
+  /* Summary bar */
+  .summary-bar {
+    display: flex;
+    gap: 12px;
+    max-width: 680px;
+    margin: 0 auto 20px;
+    flex-wrap: wrap;
+  }
+  .summary-chip {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    text-align: center;
+  }
+  .summary-chip .label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .summary-chip .value { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; }
+  .summary-chip.bk .value { color: var(--blinkit); }
+  .summary-chip.zp .value { color: var(--zepto-light); }
+  .summary-chip.winner .value { color: var(--green); }
+  .summary-chip.saving .value { color: var(--green); }
+
+  /* Items list */
+  .items-wrap { max-width: 680px; margin: 0 auto; }
+  .items-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-left: 2px;
+  }
+
+  .item-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    align-items: center;
+    gap: 12px;
+    animation: slideIn 0.25s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .item-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .price-pill {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+  .price-pill.bk { background: rgba(248,208,0,0.1); color: var(--blinkit); }
+  .price-pill.zp { background: rgba(139,44,245,0.12); color: var(--zepto-light); }
+  .price-pill.cheaper { outline: 2px solid; }
+  .price-pill.bk.cheaper { outline-color: var(--blinkit); }
+  .price-pill.zp.cheaper { outline-color: var(--zepto-light); }
+
+  .winner-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .winner-tag.bk { background: rgba(248,208,0,0.15); color: var(--blinkit); }
+  .winner-tag.zp { background: rgba(139,44,245,0.2); color: var(--zepto-light); }
+  .winner-tag.tie { background: rgba(255,255,255,0.07); color: var(--muted); }
+
+  .delete-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 1rem; padding: 2px 4px;
+    border-radius: 6px; transition: color 0.15s, background 0.15s;
+  }
+  .delete-btn:hover { color: var(--red); background: rgba(239,68,68,0.1); }
+
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+  .empty .icon { font-size: 2.5rem; margin-bottom: 10px; }
+  .empty p { font-size: 0.88rem; }
+
+  /* Unavailable */
+  .na { color: var(--muted); font-style: italic; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span class="bk">Blinkit</span> vs <span class="zp">Zepto</span></h1>
+  <p>Add items with prices from both apps — cheapest highlighted instantly</p>
+</div>
+
+<div class="badges">
+  <div class="badge bk"><span class="dot bk"></span> Blinkit</div>
+  <div class="badge zp"><span class="dot zp"></span> Zepto</div>
+</div>
+
+<div class="form-card">
+  <div class="form-title">+ Add Item</div>
+  <div class="form-row">
+    <div class="field">
+      <label>Item Name</label>
+      <input type="text" id="itemName" placeholder="e.g. Amul Milk 1L" />
+    </div>
+    <div class="field">
+      <label>Blinkit ₹</label>
+      <input type="number" class="blinkit" id="blinkitPrice" placeholder="0.00" min="0" />
+    </div>
+    <div class="field">
+      <label>Zepto ₹</label>
+      <input type="number" id="zeptoPrice" placeholder="0.00" min="0" />
+    </div>
+    <button class="add-btn" onclick="addItem()">Add</button>
+  </div>
+</div>
+
+<div class="summary-bar" id="summaryBar" style="display:none">
+  <div class="summary-chip bk">
+    <div class="label">Blinkit Total</div>
+    <div class="value" id="totalBlinkit">₹0</div>
+  </div>
+  <div class="summary-chip zp">
+    <div class="label">Zepto Total</div>
+    <div class="value" id="totalZepto">₹0</div>
+  </div>
+  <div class="summary-chip winner">
+    <div class="label">Cheaper Overall</div>
+    <div class="value" id="overallWinner">—</div>
+  </div>
+  <div class="summary-chip saving">
+    <div class="label">You Save</div>
+    <div class="value" id="totalSaving">₹0</div>
+  </div>
+</div>
+
+<div class="items-wrap">
+  <div class="items-label" id="itemsLabel" style="display:none">Your List</div>
+  <div id="itemsList"></div>
+</div>
+
+<script>
+  let items = [];
+
+  function addItem() {
+    const name   = document.getElementById('itemName').value.trim();
+    const bPrice = parseFloat(document.getElementById('blinkitPrice').value);
+    const zPrice = parseFloat(document.getElementById('zeptoPrice').value);
+
+    if (!name) { alert('Please enter an item name.'); return; }
+    if (isNaN(bPrice) && isNaN(zPrice)) { alert('Enter at least one price.'); return; }
+
+    items.push({ id: Date.now(), name, blinkit: isNaN(bPrice) ? null : bPrice, zepto: isNaN(zPrice) ? null : zPrice });
+
+    document.getElementById('itemName').value = '';
+    document.getElementById('blinkitPrice').value = '';
+    document.getElementById('zeptoPrice').value = '';
+    document.getElementById('itemName').focus();
+
+    render();
+  }
+
+  function deleteItem(id) {
+    items = items.filter(i => i.id !== id);
+    render();
+  }
+
+  function render() {
+    const list = document.getElementById('itemsList');
+    const summaryBar  = document.getElementById('summaryBar');
+    const itemsLabel  = document.getElementById('itemsLabel');
+
+    if (items.length === 0) {
+      list.innerHTML = `<div class="empty"><div class="icon">🛒</div><p>Add items above to start comparing prices</p></div>`;
+      summaryBar.style.display = 'none';
+      itemsLabel.style.display = 'none';
+      return;
+    }
+
+    summaryBar.style.display = 'flex';
+    itemsLabel.style.display = 'block';
+
+    list.innerHTML = items.map(item => {
+      const b = item.blinkit;
+      const z = item.zepto;
+      let winner = 'tie', tag = '';
+
+      if (b !== null && z !== null) {
+        if (b < z) winner = 'bk';
+        else if (z < b) winner = 'zp';
+        else winner = 'tie';
+      } else if (b !== null) winner = 'bk';
+      else if (z !== null) winner = 'zp';
+
+      const tagText = winner === 'bk' ? '🟡 Blinkit wins' : winner === 'zp' ? '🟣 Zepto wins' : '🤝 Same price';
+      const tagClass = winner === 'tie' ? 'tie' : winner;
+
+      const bHTML = b !== null
+        ? `<div class="price-pill bk ${winner==='bk'?'cheaper':''}"><span>🟡</span> ₹${b.toFixed(2)}</div>`
+        : `<div class="price-pill bk"><span class="na">N/A</span></div>`;
+
+      const zHTML = z !== null
+        ? `<div class="price-pill zp ${winner==='zp'?'cheaper':''}"><span>🟣</span> ₹${z.toFixed(2)}</div>`
+        : `<div class="price-pill zp"><span class="na">N/A</span></div>`;
+
+      return `
+        <div class="item-card">
+          <div class="item-name" title="${item.name}">${item.name}</div>
+          ${bHTML}
+          ${zHTML}
+          <div class="winner-tag ${tagClass}">${tagText}</div>
+          <button class="delete-btn" onclick="deleteItem(${item.id})" title="Remove">✕</button>
+        </div>`;
+    }).join('');
+
+    // Totals
+    const bTotal = items.reduce((s, i) => s + (i.blinkit ?? 0), 0);
+    const zTotal = items.reduce((s, i) => s + (i.zepto  ?? 0), 0);
+    const saving = Math.abs(bTotal - zTotal);
+    const ow = bTotal < zTotal ? '🟡 Blinkit' : zTotal < bTotal ? '🟣 Zepto' : '🤝 Tie';
+
+    document.getElementById('totalBlinkit').textContent = `₹${bTotal.toFixed(2)}`;
+    document.getElementById('totalZepto').textContent   = `₹${zTotal.toFixed(2)}`;
+    document.getElementById('overallWinner').textContent = ow;
+    document.getElementById('totalSaving').textContent  = `₹${saving.toFixed(2)}`;
+  }
+
+  // Allow Enter key to add item
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') addItem();
+  });
+
+  render();
+</script>
+</body>
+</html>
